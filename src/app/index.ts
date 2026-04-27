@@ -17,6 +17,7 @@ const app = express();
 const allowedOrigins: string[] = [
   process.env.ADMIN_URL,
   process.env.CLIENT_URL,
+  "https://task-management-system-frontend-bss.vercel.app",
   "http://localhost:3000",
   "http://localhost:5173",
   "http://localhost:8081",
