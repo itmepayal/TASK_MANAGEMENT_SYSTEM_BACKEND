@@ -18,8 +18,8 @@ const options: Options = {
       {
         url:
           process.env.NODE_ENV === "production"
-            ? "https://task-management-system-backend-19c4.onrender.com/"
-            : "http://localhost:8000",
+            ? "https://task-management-system-backend-19c4.onrender.com/api"
+            : "http://localhost:8000/api",
         description:
           process.env.NODE_ENV === "production"
             ? "Production Server"
