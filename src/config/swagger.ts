@@ -31,7 +31,7 @@ const options: Options = {
       schemas: {
         Task: {
           type: "object",
-          required: ["text"],
+          required: ["text", "priority"],
           properties: {
             id: {
               type: "string",
@@ -39,7 +39,12 @@ const options: Options = {
             },
             text: {
               type: "string",
-              example: "Complete assignment",
+              example: "Fix authentication bug",
+            },
+            priority: {
+              type: "string",
+              enum: ["low", "medium", "high"],
+              example: "medium",
             },
             completed: {
               type: "boolean",
@@ -51,7 +56,6 @@ const options: Options = {
             },
           },
         },
-
         Error: {
           type: "object",
           properties: {
