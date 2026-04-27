@@ -30,11 +30,10 @@ const options: Options = {
       schemas: {
         Task: {
           type: "object",
-          required: ["text", "priority"],
           properties: {
-            id: {
+            _id: {
               type: "string",
-              example: "17123456789",
+              example: "69ef112538d8568dc18adeec",
             },
             text: {
               type: "string",
@@ -49,12 +48,99 @@ const options: Options = {
               type: "boolean",
               example: false,
             },
+            tags: {
+              type: "array",
+              items: { type: "string" },
+              example: [],
+            },
             createdAt: {
+              type: "string",
+              format: "date-time",
+            },
+            updatedAt: {
               type: "string",
               format: "date-time",
             },
           },
         },
+
+        TaskCreate: {
+          type: "object",
+          required: ["text", "priority"],
+          properties: {
+            text: {
+              type: "string",
+              example: "Fix authentication bug",
+            },
+            priority: {
+              type: "string",
+              enum: ["low", "medium", "high"],
+              example: "medium",
+            },
+          },
+        },
+
+        TaskUpdate: {
+          type: "object",
+          properties: {
+            text: {
+              type: "string",
+              example: "Updated task",
+            },
+            priority: {
+              type: "string",
+              enum: ["low", "medium", "high"],
+            },
+            completed: {
+              type: "boolean",
+              example: true,
+            },
+          },
+        },
+
+        TaskResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            message: {
+              type: "string",
+              example: "Task created successfully",
+            },
+            data: {
+              $ref: "#/components/schemas/Task",
+            },
+          },
+        },
+
+        TaskListResponse: {
+          type: "object",
+          properties: {
+            success: { type: "boolean", example: true },
+            message: {
+              type: "string",
+              example: "Tasks fetched successfully",
+            },
+            data: {
+              type: "object",
+              properties: {
+                tasks: {
+                  type: "array",
+                  items: { $ref: "#/components/schemas/Task" },
+                },
+                pagination: {
+                  type: "object",
+                  properties: {
+                    total: { type: "number", example: 10 },
+                    page: { type: "number", example: 1 },
+                    limit: { type: "number", example: 10 },
+                    totalPages: { type: "number", example: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+
         Error: {
           type: "object",
           properties: {
@@ -65,19 +151,6 @@ const options: Options = {
             message: {
               type: "string",
               example: "Something went wrong",
-            },
-          },
-        },
-
-        Success: {
-          type: "object",
-          properties: {
-            success: {
-              type: "boolean",
-              example: true,
-            },
-            data: {
-              type: "object",
             },
           },
         },

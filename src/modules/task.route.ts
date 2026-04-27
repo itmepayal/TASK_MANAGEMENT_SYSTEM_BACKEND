@@ -36,7 +36,7 @@ taskRouter.get("/", getTasks);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Task'
+ *             $ref: '#/components/schemas/TaskCreate'
  *     responses:
  *       201:
  *         description: Task created successfully
@@ -61,7 +61,7 @@ taskRouter.post("/", createTask);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Task'
+ *             $ref: '#/components/schemas/TaskUpdate'
  *     responses:
  *       200:
  *         description: Task updated successfully
