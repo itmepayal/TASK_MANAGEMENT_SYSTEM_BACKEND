@@ -27,6 +27,7 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
+  console.error("ERROR:", err);
   // =========================================
   // DEFAULT ERROR VALUES
   // =========================================
