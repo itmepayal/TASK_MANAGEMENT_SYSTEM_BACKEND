@@ -1,13 +1,13 @@
 # 📈 Task Management System API
 
 📄 **Swagger Docs:**  
-https://stock-management-system-qgvh.onrender.com/docs
+https://task-management-system-backend-19c4.onrender.com/api/docs
 
 🚀 **Live API:**  
-https://stock-management-system-qgvh.onrender.com
+https://task-management-system-backend-19c4.onrender.com/
 
 🚀 **Postman Collection Video:**  
-https://www.loom.com/share/f738e2434fac4c5d896232c3225930e0
+https://www.loom.com/share/ef63438c09884200a535df9c8392fe85
 
 ---
 
