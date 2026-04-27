@@ -10,7 +10,6 @@ const options: Options = {
       description: "A simple API for managing tasks (add, view, delete tasks)",
       contact: {
         name: "API Support",
-        email: "support@taskmanager.com",
       },
     },
 
@@ -86,7 +85,10 @@ const options: Options = {
     },
   },
 
-  apis: ["./src/**/*.ts"],
+  apis:
+    process.env.NODE_ENV === "production"
+      ? ["./dist/**/*.js"]
+      : ["./src/**/*.ts"],
 };
 
 export const specs = swaggerJSDoc(options);
