@@ -61,5 +61,5 @@ export const updateTask = async (req: Request, res: Response) => {
   const task = await taskService.updateTask(taskId, { text, priority });
   return res
     .status(StatusCodes.OK)
-    .json(ApiResponse.success("Task toggled successfully", task));
+    .json(ApiResponse.success("Task updated successfully", task));
 };
