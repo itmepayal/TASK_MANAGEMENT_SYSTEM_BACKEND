@@ -13,6 +13,8 @@ type ServerConfig = {
   CLOUDINARY_CLOUD_NAME: string;
   CLOUDINARY_API_KEY: string;
   CLOUDINARY_API_SECRET: string;
+
+  JWT_SECRET: string;
 };
 
 // =========================================
@@ -49,4 +51,6 @@ export const serverConfig: ServerConfig = {
   CLOUDINARY_CLOUD_NAME: getEnvVariable("CLOUDINARY_CLOUD_NAME"),
   CLOUDINARY_API_KEY: getEnvVariable("CLOUDINARY_API_KEY"),
   CLOUDINARY_API_SECRET: getEnvVariable("CLOUDINARY_API_SECRET"),
+
+  JWT_SECRET: getEnvVariable("JWT_SECRET"),
 };
