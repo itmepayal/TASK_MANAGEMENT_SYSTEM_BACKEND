@@ -1,6 +1,9 @@
 import { StatusCodes } from "http-status-codes";
 import User from "@/models/user.model";
 import { AppError } from "@/middleware/error.middleware";
+import { deleteImage } from "@/config/cloudinary.config";
+import Task from "@/models/task.model";
+import mongoose from "mongoose";
 
 /* =========================================================
 REGISTER USER
@@ -134,11 +137,40 @@ export const getAllUsers = async (page: number = 1, limit: number = 10) => {
 DELETE USER
 ========================================================= */
 export const deleteUser = async (userId: string) => {
-  const user = await User.findByIdAndDelete(userId);
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new AppError("Invalid user id", StatusCodes.BAD_REQUEST);
+  }
+  const user: any = await User.findById(userId);
 
   if (!user) {
     throw new AppError("User not found", StatusCodes.NOT_FOUND);
   }
+
+  if (user.avatar?.publicId) {
+    await deleteImage(user.avatar.publicId);
+  }
+
+  const tasks: any[] = await Task.find({
+    $or: [{ createdBy: userId }, { assignedTo: userId }],
+  });
+
+  for (const task of tasks) {
+    if (task.attachments?.length > 0) {
+      await Promise.all(
+        task.attachments.map(async (attachment: any) => {
+          if (attachment.publicId) {
+            await deleteImage(attachment.publicId);
+          }
+        }),
+      );
+    }
+  }
+
+  await Task.deleteMany({
+    $or: [{ createdBy: userId }, { assignedTo: userId }],
+  });
+
+  await User.findByIdAndDelete(userId);
 
   return user;
 };
