@@ -1,15 +1,26 @@
 import path from "path";
+import fs from "fs";
 import multer, { FileFilterCallback, StorageEngine } from "multer";
 import { Request } from "express";
+
 import { AppError } from "@/middleware/error.middleware";
 import { StatusCodes } from "http-status-codes";
+
+/* =========================================================
+TEMP DIRECTORY
+========================================================= */
+const tempDir = path.join(process.cwd(), "public/temp");
+
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
 
 /* =========================================================
 STORAGE CONFIG
 ========================================================= */
 const storage: StorageEngine = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb) => {
-    cb(null, "public/temp");
+    cb(null, tempDir);
   },
 
   filename: (req: Request, file: Express.Multer.File, cb) => {
