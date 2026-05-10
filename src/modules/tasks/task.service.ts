@@ -1,8 +1,7 @@
-import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
-
-import Task from "@/models/task.model";
+import { StatusCodes } from "http-status-codes";
 import { AppError } from "@/middleware/error.middleware";
+import Task, { IAttachment, IChecklistItem } from "@/models/task.model";
 
 /* =========================================================
 GET ALL TASKS
@@ -106,25 +105,18 @@ export const createTask = async (data: {
   priority?: "low" | "medium" | "high";
   dueDate: Date;
   tags?: string[];
-  assignedTo?: string;
+  assignedTo?: string[];
   createdBy: string;
-  attachments?: {
-    url: string;
-    publicId?: string;
-    fileName?: string;
-    fileType?: string;
-    fileSize?: number;
-  }[];
-  todoCheckLists?: {
-    title: string;
-    completed?: boolean;
-  }[];
+  attachments?: IAttachment[];
+  todoCheckLists?: IChecklistItem[];
 }) => {
   const task = await Task.create(data);
 
-  return await Task.findById(task._id)
+  const populatedTask = await Task.findById(task._id)
     .populate("assignedTo", "name email avatar")
     .populate("createdBy", "name email avatar");
+
+  return populatedTask;
 };
 
 /* =========================================================
@@ -140,14 +132,9 @@ export const updateTask = async (
     progress?: number;
     dueDate?: Date;
     tags?: string[];
-    assignedTo?: string;
-    attachments?: {
-      url: string;
-      publicId?: string;
-      fileName?: string;
-      fileType?: string;
-      fileSize?: number;
-    }[];
+    assignedTo?: string[];
+    attachments?: IAttachment[];
+    todoCheckLists?: IChecklistItem[];
   },
 ) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {

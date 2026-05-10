@@ -3,6 +3,9 @@ import { StatusCodes } from "http-status-codes";
 import * as taskService from "@/modules/tasks/task.service";
 import { ApiResponse } from "@/utils/apiResponse";
 import logger from "@/config/logger.config";
+import { AppError } from "@/middleware/error.middleware";
+import Task from "@/models/task.model";
+import { uploadImage, deleteImage } from "@/config/cloudinary.config";
 
 /* =========================================================
 GET ALL TASKS
@@ -58,7 +61,44 @@ export const getTaskById = async (req: Request, res: Response) => {
 CREATE TASK
 ========================================================= */
 export const createTask = async (req: Request, res: Response) => {
-  const task = await taskService.createTask(req.body);
+  let attachments: any[] = [];
+
+  if (req.files && Array.isArray(req.files)) {
+    attachments = await Promise.all(
+      req.files.map(async (file: Express.Multer.File) => {
+        const uploaded = await uploadImage(file.path, {
+          folder: "tasks",
+        });
+
+        return {
+          url: uploaded.url,
+          publicId: uploaded.public_id,
+          fileName: file.originalname,
+          fileType: file.mimetype,
+          fileSize: file.size,
+        };
+      }),
+    );
+  }
+
+  const task = await taskService.createTask({
+    text: req.body.text,
+    description: req.body.description,
+    priority: req.body.priority,
+    dueDate: req.body.dueDate,
+
+    tags:
+      typeof req.body.tags === "string"
+        ? JSON.parse(req.body.tags)
+        : req.body.tags || [],
+    assignedTo: req.body.assignedTo || [],
+    createdBy: (req as any).user._id,
+    todoCheckLists:
+      typeof req.body.todoCheckLists === "string"
+        ? JSON.parse(req.body.todoCheckLists)
+        : req.body.todoCheckLists || [],
+    attachments,
+  });
 
   logger.info(`Task created: ${task?._id}`);
 
@@ -73,7 +113,104 @@ UPDATE TASK
 export const updateTask = async (req: Request, res: Response) => {
   const taskId = req.params.id as string;
 
-  const task = await taskService.updateTask(taskId, req.body);
+  const existingTask = await Task.findById(taskId);
+
+  if (!existingTask) {
+    throw new AppError("Task not found", StatusCodes.NOT_FOUND);
+  }
+
+  let newAttachments: any[] = [];
+
+  if (req.files && Array.isArray(req.files)) {
+    newAttachments = await Promise.all(
+      req.files.map(async (file: Express.Multer.File) => {
+        const uploaded = await uploadImage(file.path, {
+          folder: "tasks",
+        });
+
+        return {
+          url: uploaded.url,
+          publicId: uploaded.public_id,
+          fileName: file.originalname,
+          fileType: file.mimetype,
+          fileSize: file.size,
+        };
+      }),
+    );
+  }
+
+  let existingAttachments = [...(existingTask.attachments || [])];
+
+  if (req.body.removeAttachmentIds) {
+    const removeAttachmentIds =
+      typeof req.body.removeAttachmentIds === "string"
+        ? JSON.parse(req.body.removeAttachmentIds)
+        : req.body.removeAttachmentIds;
+
+    await Promise.all(
+      existingAttachments
+        .filter((item: any) => removeAttachmentIds.includes(item.publicId))
+        .map((item: any) => deleteImage(item.publicId)),
+    );
+
+    existingAttachments = existingAttachments.filter(
+      (item: any) => !removeAttachmentIds.includes(item.publicId),
+    );
+  }
+
+  const mergedAttachments = [...existingAttachments, ...newAttachments];
+
+  const updateData: any = {
+    attachments: mergedAttachments,
+  };
+
+  if (req.body.text !== undefined) {
+    updateData.text = req.body.text;
+  }
+
+  if (req.body.description !== undefined) {
+    updateData.description = req.body.description;
+  }
+
+  if (req.body.createdBy !== undefined) {
+    updateData.createdBy = req.body.createdBy;
+  }
+
+  if (req.body.priority !== undefined) {
+    updateData.priority = req.body.priority;
+  }
+
+  if (req.body.completed !== undefined) {
+    updateData.completed = req.body.completed === "true";
+  }
+
+  if (req.body.progress !== undefined) {
+    updateData.progress = req.body.progress;
+  }
+
+  if (req.body.dueDate !== undefined) {
+    updateData.dueDate = req.body.dueDate;
+  }
+
+  if (req.body.tags !== undefined) {
+    updateData.tags =
+      typeof req.body.tags === "string"
+        ? JSON.parse(req.body.tags)
+        : req.body.tags;
+  }
+
+  if (req.body.assignedTo !== undefined) {
+    updateData.assignedTo = req.body.assignedTo;
+  }
+
+  if (req.body.todoCheckLists !== undefined) {
+    updateData.todoCheckLists =
+      typeof req.body.todoCheckLists === "string"
+        ? JSON.parse(req.body.todoCheckLists)
+        : req.body.todoCheckLists;
+  }
+
+  const task = await taskService.updateTask(taskId, updateData);
 
   logger.info(`Task updated: ${taskId}`);
 
@@ -121,6 +258,22 @@ DELETE TASK
 ========================================================= */
 export const deleteTask = async (req: Request, res: Response) => {
   const taskId = req.params.id as string;
+
+  const task = await Task.findById(taskId);
+
+  if (!task) {
+    throw new AppError("Task not found", StatusCodes.NOT_FOUND);
+  }
+
+  if (task.attachments && task.attachments.length > 0) {
+    await Promise.all(
+      task.attachments.map(async (attachment: any) => {
+        if (attachment.publicId) {
+          await deleteImage(attachment.publicId);
+        }
+      }),
+    );
+  }
 
   await taskService.deleteTask(taskId);
 

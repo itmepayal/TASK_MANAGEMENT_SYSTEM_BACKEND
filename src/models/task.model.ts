@@ -3,12 +3,12 @@ import mongoose, { Schema, Types } from "mongoose";
 /* =========================================================
 INTERFACES
 ========================================================= */
-interface IChecklistItem {
+export interface IChecklistItem {
   title: string;
   completed: boolean;
 }
 
-interface IAttachment {
+export interface IAttachment {
   url: string;
   publicId?: string;
   fileName?: string;
@@ -30,13 +30,13 @@ export interface ITask {
 
   tags: string[];
 
-  assignedTo?: Types.ObjectId;
+  assignedTo?: Types.ObjectId[];
 
   createdBy: Types.ObjectId;
 
-  attachments: IAttachment[];
+  attachments: IAttachment;
 
-  todoCheckLists: IChecklistItem[];
+  todoCheckLists: IChecklistItem;
 
   createdAt?: Date;
   updatedAt?: Date;
@@ -136,10 +136,12 @@ const taskSchema = new Schema(
       default: [],
     },
 
-    assignedTo: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
+    assignedTo: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
 
     createdBy: {
       type: Schema.Types.ObjectId,

@@ -12,6 +12,7 @@ import {
   getDashboardUserData,
 } from "@/modules/tasks/task.controller";
 import { isProtected, adminOnly } from "@/middleware/auth.middleware";
+import { upload } from "@/middleware/multer.middleware";
 
 export const taskRouter = express.Router();
 
@@ -33,12 +34,12 @@ taskRouter.get("/:id", getTaskById);
 /* =========================================================
 CREATE TASK
 ========================================================= */
-taskRouter.post("/", adminOnly, createTask);
+taskRouter.post("/", adminOnly, upload.array("attachments", 5), createTask);
 
 /* =========================================================
 UPDATE TASK
 ========================================================= */
-taskRouter.put("/:id", updateTask);
+taskRouter.put("/:id", upload.array("attachments", 5), updateTask);
 
 /* =========================================================
 UPDATE TASK STATUS

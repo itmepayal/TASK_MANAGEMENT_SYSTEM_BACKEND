@@ -43,12 +43,19 @@ const fileFilter = (
     "image/jpg",
     "image/jpeg",
     "image/webp",
+
+    "application/pdf",
   ];
 
   if (allowedMimeTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new AppError("Only image files are allowed", StatusCodes.BAD_REQUEST));
+    cb(
+      new AppError(
+        "Only images and PDF files are allowed",
+        StatusCodes.BAD_REQUEST,
+      ),
+    );
   }
 };
 
