@@ -17,7 +17,7 @@ const app = express();
 const allowedOrigins: string[] = [
   process.env.ADMIN_URL,
   process.env.CLIENT_URL,
-  "https://aura-trends-frontend-ixh3.vercel.app/register",
+  "https://aura-trends-frontend-ixh3.vercel.app",
   "https://task-management-system-backend-19c4.onrender.com",
   "https://task-management-system-frontend-bss.vercel.app",
   "http://localhost:3000",
